@@ -804,7 +804,7 @@ export class Webhook {
   }
 
   public verify(
-    payload: string | Buffer,
+    payload: string,
     headers_:
       | WebhookRequiredHeaders
       | WebhookUnbrandedRequiredHeaders
@@ -850,15 +850,10 @@ export class Webhook {
     throw new WebhookVerificationError("No matching signature found");
   }
 
-  public sign(msgId: string, timestamp: Date, payload: string | Buffer): string {
-    if (typeof payload === "string") {
-      // Do nothing, already a string
-    } else if (payload.constructor.name === "Buffer") {
-      payload = payload.toString();
-    } else {
-      throw new Error("Expected payload to be of type string or Buffer. Please refer to https://docs.svix.com/receiving/verifying-payloads/how for more information.");
+  public sign(msgId: string, timestamp: Date, payload: string): string {
+    if (typeof payload !== "string") {
+      throw new Error("Expected payload to be of type string. Please refer to https://docs.svix.com/receiving/verifying-payloads/how for more information.");
     }
-
     const encoder = new TextEncoder();
     const timestampNumber = Math.floor(timestamp.getTime() / 1000);
     const toSign = encoder.encode(`${msgId}.${timestampNumber}.${payload}`);
